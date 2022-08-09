@@ -36,7 +36,6 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
     this.firStore.settings({
       ignoreUndefinedProperties: options?.ignoreUndefinedProperties || true,
     });
-
     return this;
   }
 
@@ -69,7 +68,6 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
         return undefined;
       },
     };
-
     const { reload, save, destroy, ...safeSession } = session;
     try {
       await this.firStore
@@ -90,9 +88,8 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
         .collection(this.options.collectionName)
         .doc(sessionId)
         .get();
-
       if (sessDoc == null || sessDoc.exists === false) {
-        logTrace("Could not find session to read =>", sessionId);
+        logTrace("Could not read session =>", sessionId);
         return null;
       }
       logTrace("Read session =>", sessionId, sessDoc);
