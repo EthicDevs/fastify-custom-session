@@ -45,7 +45,7 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
       expiresAtEpoch: null,
       data: sessionData,
       metas: {
-        detectedIPAddress: metas.detectedIPAddress,
+        detectedIPAddress: metas.detectedIPAddress || "",
         detectedUserAgent: metas.detectedUserAgent,
       },
       async destroy() {
@@ -59,10 +59,11 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
       },
     };
 
+    const { reload, save, destroy, ...safeSession } = session;
     await this.firStore
       .collection(this.options.collectionName)
       .doc(sessionId)
-      .create(session);
+      .create(safeSession);
 
     return session;
   }
@@ -89,10 +90,11 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
     session: Session,
   ): Promise<boolean> {
     try {
+      const { reload, save, destroy, ...safeSession } = session;
       await this.firStore
         .collection(this.options.collectionName)
         .doc(sessionId)
-        .set(session);
+        .set(safeSession);
       return true;
     } catch (_) {
       return false;
