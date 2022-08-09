@@ -5,7 +5,3 @@ declare module "fastify" {
     session: null | Session;
   }
 }
-
-import { makePlugin } from "./pluginFactory";
-
-export default makePlugin();
