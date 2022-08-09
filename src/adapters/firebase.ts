@@ -9,6 +9,10 @@ import { generateUniqSerial } from "../serial";
 interface FirebaseSessionAdapterOptions {
   collectionName: string; // @default sessions
   firebaseApp: FirebaseApp;
+  /**
+   * Whether to skip nested properties that are set to `undefined` during object serialization. If set to `true`, these properties are skipped and not written to Firestore. If set `false` or omitted, the SDK throws an exception when it encounters properties of type `undefined`.
+   */
+  ignoreUndefinedProperties?: boolean; // @default true
 }
 
 export class FirebaseSessionAdapter implements ISessionStoreAdapter {
@@ -25,6 +29,9 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
     // this.sessionOptions = sessionOptions;
     this.firApp = options.firebaseApp;
     this.firStore = getFirStore(this.firApp);
+    this.firStore.settings({
+      ignoreUndefinedProperties: options?.ignoreUndefinedProperties || true,
+    });
 
     return this;
   }
