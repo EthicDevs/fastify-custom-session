@@ -9,6 +9,7 @@ import type {
   FastifyRequest,
 } from "fastify";
 import makeFastifyPlugin from "fastify-plugin";
+import debug from "debug";
 // app
 import type { Session, SessionPluginOptions } from "./types";
 import { FASTIFY_VERSION_TARGET } from "./constants";
@@ -16,6 +17,9 @@ import { generateUniqSerial } from "./serial";
 
 const UNSIGNED_COOKIE_REGEXP = /^(.*)$/i;
 const SIGNED_COOKIE_REGEXP = /^([^.].*)\.(.*)$/i;
+
+const logTrace = debug("customSession:trace");
+const logError = debug("customSession:error");
 
 const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
   async (server, options) => {
@@ -51,7 +55,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           }
           return true;
         } catch (err) {
-          console.error("cannot destroy session.", request.session?.id, err);
+          logError("cannot destroy session.", request.session?.id, err);
           return false;
         }
       };
@@ -77,13 +81,9 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           });
           sessionId = session.id;
           reply.cookie(options.cookieName, sessionId, options.cookieOptions);
-          console.log(
-            "new cookie session made =>",
-            options.cookieName,
-            sessionId,
-          );
+          logTrace("new cookie session made =>", options.cookieName, sessionId);
         } catch (err) {
-          console.error("could not create session.", err);
+          logError("could not create session =>", sessionId, err);
         }
       } else {
         const cookieMatchesUnsigned = UNSIGNED_COOKIE_REGEXP.exec(cookieData);
@@ -118,13 +118,14 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
 
         try {
           session = await storeAdapter.readSessionById(sessionId);
-          console.log("read session success =>", sessionId, session);
+          logTrace("read session success =>", sessionId, session);
         } catch (err) {
-          console.error("cannot restore session =>", sessionId, err);
+          logError("cannot restore session =>", sessionId, err);
           session = null;
         }
       } else {
         sessionId = generateUniqSerial();
+        logTrace("Generated new sessionId =>", sessionId);
       }
 
       if (session != null) {
@@ -140,7 +141,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
             return undefined;
           },
         };
-        console.log("restored session =>", sessionId, request.session);
+        logTrace("restored session =>", sessionId, request.session);
       } else {
         const nowDate = new Date(Date.now());
         request.session = {
@@ -162,7 +163,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
             return undefined;
           },
         };
-        console.log("made new session", sessionId, request.session);
+        logTrace("made new session =>", sessionId, request.session);
       }
     });
 
@@ -207,9 +208,9 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         let prevData: Session | null = null;
         try {
           prevData = await storeAdapter.readSessionById(sessionId);
-          console.log("read session success =>", sessionId, prevData);
+          logTrace("read session success =>", sessionId, prevData);
         } catch (err) {
-          console.error("cannot find session to load.", err);
+          logError("cannot load session =>", sessionId, err);
           prevData = null;
         }
 
@@ -238,15 +239,22 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
               nextSession,
             );
             if (success) {
-              console.log("updated session =>", sessionId, nextSession);
+              logTrace("updated session =>", sessionId, nextSession);
             } else {
-              console.log("could not update session data =>", sessionId);
+              logTrace("could not update session data =>", sessionId);
             }
           } catch (err) {
-            console.error("could not save session data =>", sessionId, err);
+            logError("could not save session data =>", sessionId, err);
           }
         } else {
-          console.log("skipped useless write, session did not change");
+          logTrace(
+            "skipped useless write, session did not change =>",
+            sessionId,
+            "before:",
+            reqSessionStr,
+            "after:",
+            nextSessionStr,
+          );
         }
       }
       return undefined;
