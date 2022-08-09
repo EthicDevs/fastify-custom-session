@@ -1,0 +1,43 @@
+import {
+  CustomSession,
+  ISessionStoreAdapter,
+  Session,
+  SessionPluginOptions,
+} from "../types";
+
+interface PostgresSessionAdapterOptions extends SessionPluginOptions {
+  databaseUrl: string;
+  schemaName?: string; // @default public
+  tableName?: string; // @default sessions
+}
+
+export class PostgresSessionAdapter implements ISessionStoreAdapter {
+  private options: PostgresSessionAdapterOptions;
+
+  constructor(options: PostgresSessionAdapterOptions) {
+    this.options = options;
+    this.pg = new pg();
+  }
+
+  createSession(
+    sessionData: CustomSession,
+    metas: {
+      detectedIPAddress?: string | undefined;
+      detectedUserAgent: string;
+    },
+  ): Promise<Session> {
+    throw new Error("Method not implemented.");
+  }
+
+  readSessionById(sessionId: string): Promise<Session> {
+    throw new Error("Method not implemented.");
+  }
+
+  updateSessionById(sessionId: string, session: Session): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+
+  deleteSessionById(sessionId: string): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+}

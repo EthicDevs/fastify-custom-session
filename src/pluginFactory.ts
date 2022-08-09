@@ -15,8 +15,7 @@ import { FASTIFY_VERSION_TARGET } from "./constants";
 
 const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
   async (server, options) => {
-    const { initialSession, storeAdapter: StoreAdapter } = options;
-    const storeAdapter = new StoreAdapter(options);
+    const { initialSession, storeAdapter } = options;
 
     server.decorateRequest("session", null);
 

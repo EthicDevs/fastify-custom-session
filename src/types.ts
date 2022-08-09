@@ -31,8 +31,8 @@ export declare interface Session {
   expiresAtEpoch: null | number;
   data: CustomSession;
   metas: {
-    detectedUserAgent?: string;
-    detectedIPAddress: string;
+    detectedUserAgent: string;
+    detectedIPAddress?: string;
   };
   // public api
   destroy(): Promise<boolean>;
@@ -42,7 +42,6 @@ export declare interface Session {
 }
 
 export interface ISessionStoreAdapter {
-  new (options: SessionPluginOptions): ISessionStoreAdapter;
   /**
    * A function whose implementation will create/store the session and return
    * a new Session object. Also it gets passed some meta data so it's possible to
@@ -72,9 +71,9 @@ export interface ISessionStoreAdapter {
   ): Promise<Session>;
   /**
    * A function whose implementation will retrieve a session given its id and
-   * return it.
+   * return it, or null if it couldn't be created.
    */
-  readSessionById(sessionId: string): Promise<Session>;
+  readSessionById(sessionId: string): Promise<Session | null>;
   /**
    * A function whose implementation will update a session given its id and the
    * new session state. It will returns with a boolean indicating if the update
@@ -87,6 +86,10 @@ export interface ISessionStoreAdapter {
    * the system where the session is saved.
    */
   deleteSessionById(sessionId: string): Promise<boolean>;
+}
+
+export interface ISessionStoreAdapterConstructable<T> {
+  new (options: T, sessionOptions: SessionPluginOptions): ISessionStoreAdapter;
 }
 
 export interface SessionPluginOptions {

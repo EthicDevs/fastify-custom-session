@@ -1,6 +1,6 @@
 {
   "name": "@ethicdevs/fastify-custom-session",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A Fastify (v3.x+) plugin that let you use session and decide only where to load/save from/to",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -45,6 +45,7 @@
     "@types/node": "^17.0.21",
     "@fastify/cookie": "6.0.0",
     "fastify": "^3.27.4",
+    "firebase-admin": "^11.0.0",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
     "nodemon": "^2.0.15",
@@ -56,6 +57,7 @@
   },
   "peerDependencies": {
     "@fastify/cookie": "6.0.0",
+    "firebase-admin": "^11.0.0",
     "fastify": "^3.27.4",
     "tslib": ">=2.4.0"
   },
