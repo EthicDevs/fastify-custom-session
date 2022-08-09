@@ -1,14 +1,13 @@
 // 3rd-party
-import type { App as FirebaseApp, Credential } from "firebase-admin/app";
+import type { App as FirebaseApp } from "firebase-admin/app";
 import type { Firestore as FirebaseStore } from "firebase-admin/firestore";
-import { initializeApp as initializeFirApp } from "firebase-admin/app";
 import { getFirestore as getFirStore } from "firebase-admin/firestore";
 // lib
 import { CustomSession, ISessionStoreAdapter, Session } from "../types";
 
 interface FirebaseSessionAdapterOptions {
-  credential: Required<Credential>;
   collectionName: string; // @default sessions
+  firebaseApp: FirebaseApp;
 }
 
 function generateUniqSerial(): string {
@@ -30,8 +29,7 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
   ) {
     this.options = options;
     // this.sessionOptions = sessionOptions;
-
-    this.firApp = initializeFirApp({ credential: this.options.credential });
+    this.firApp = options.firebaseApp;
     this.firStore = getFirStore(this.firApp);
 
     return this;
