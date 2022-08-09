@@ -41,7 +41,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         }
         try {
           await storeAdapter.deleteSessionById(request.session.id);
-          request.session = null;
+          request.session.data = {};
           if (reply.sent === false) {
             reply.clearCookie(options.cookieName, options.cookieOptions);
           }
