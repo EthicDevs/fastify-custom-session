@@ -101,7 +101,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         ) {
           // TODO: Check signature [2].
           const [_, sid] = cookieMatchesSigned;
-          sessionId = sid.split(".")[0];
+          sessionId = sid;
         } else {
           sessionId = cookieData;
         }
@@ -114,6 +114,8 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         sessionId.trim() !== "null" &&
         sessionId.trim() !== "__proto__"
       ) {
+        sessionId = sessionId.split(".")[0];
+
         try {
           session = await storeAdapter.readSessionById(sessionId);
           console.log("read session success =>", sessionId, session);
@@ -188,7 +190,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
       ) {
         // TODO: Check signature [2].
         const [_, sid] = cookieMatchesSigned;
-        sessionId = sid.split(".")[0];
+        sessionId = sid;
       } else {
         sessionId = null;
       }
@@ -200,6 +202,8 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         sessionId.trim() !== "null" &&
         sessionId.trim() !== "__proto__"
       ) {
+        sessionId = sessionId.split(".")[0];
+
         let prevData: Session | null = null;
         try {
           prevData = await storeAdapter.readSessionById(sessionId);
@@ -229,10 +233,17 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
 
         if (nextSessionStr !== reqSessionStr) {
           try {
-            await storeAdapter.updateSessionById(sessionId, nextSession);
-            console.log("updated session =>", sessionId, nextSession);
+            const success = await storeAdapter.updateSessionById(
+              sessionId,
+              nextSession,
+            );
+            if (success) {
+              console.log("updated session =>", sessionId, nextSession);
+            } else {
+              console.log("could not update session data =>", sessionId);
+            }
           } catch (err) {
-            console.error("could not save session data.", err);
+            console.error("could not save session data =>", sessionId, err);
           }
         } else {
           console.log("skipped useless write, session did not change");
