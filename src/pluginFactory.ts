@@ -128,6 +128,27 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
             return undefined;
           },
         };
+      } else {
+        const nowDate = new Date(Date.now());
+        request.session = {
+          id: sessionId,
+          createdAtEpoch: nowDate.getTime(),
+          updatedAtEpoch: nowDate.getTime(),
+          expiresAtEpoch: null,
+          data: {},
+          metas: {
+            detectedUserAgent: "<not-set>",
+            detectedIPAddress: "<not-set>",
+          },
+          destroy: getDestroySession(request, reply),
+          // no-op for compatibility
+          reload: async function reload(): Promise<void> {
+            return undefined;
+          },
+          save: async function save(): Promise<void> {
+            return undefined;
+          },
+        };
       }
     });
 
