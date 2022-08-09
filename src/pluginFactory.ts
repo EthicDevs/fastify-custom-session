@@ -14,6 +14,9 @@ import type { Session, SessionPluginOptions } from "./types";
 import { FASTIFY_VERSION_TARGET } from "./constants";
 import { generateUniqSerial } from "./serial";
 
+const UNSIGNED_COOKIE_REGEXP = /^(.*)$/i;
+const SIGNED_COOKIE_REGEXP = /^([^.].*)\.(.*)$/i;
+
 const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
   async (server, options) => {
     const { initialSession, storeAdapter } = options;
@@ -79,8 +82,8 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           console.error("could not create session.", err);
         }
       } else {
-        const cookieMatchesUnsigned = /^(.*)$/i.exec(cookieData);
-        const cookieMatchesSigned = /^([^.].*).(.*)$/i.exec(cookieData);
+        const cookieMatchesUnsigned = UNSIGNED_COOKIE_REGEXP.exec(cookieData);
+        const cookieMatchesSigned = SIGNED_COOKIE_REGEXP.exec(cookieData);
 
         if (
           cookieMatchesUnsigned != null &&
@@ -163,8 +166,8 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
       const cookieData = request.cookies[options.cookieName];
 
       let sessionId: null | string = null;
-      const cookieMatchesUnsigned = /^(.*)$/i.exec(cookieData);
-      const cookieMatchesSigned = /^([^.].*).(.*)$/i.exec(cookieData);
+      const cookieMatchesUnsigned = UNSIGNED_COOKIE_REGEXP.exec(cookieData);
+      const cookieMatchesSigned = SIGNED_COOKIE_REGEXP.exec(cookieData);
 
       if (
         cookieMatchesUnsigned != null &&
