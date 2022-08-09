@@ -77,7 +77,11 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           });
           sessionId = session.id;
           reply.cookie(options.cookieName, sessionId, options.cookieOptions);
-          // console.log("new session made =>", sessionId);
+          console.log(
+            "new cookie session made =>",
+            options.cookieName,
+            sessionId,
+          );
         } catch (err) {
           console.error("could not create session.", err);
         }
@@ -97,7 +101,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         ) {
           // TODO: Check signature [2].
           const [_, sid] = cookieMatchesSigned;
-          sessionId = sid;
+          sessionId = sid.split(".")[0];
         } else {
           sessionId = cookieData;
         }
@@ -112,8 +116,9 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
       ) {
         try {
           session = await storeAdapter.readSessionById(sessionId);
+          console.log("read session success =>", sessionId, session);
         } catch (err) {
-          console.error("cannot find session to load.", err);
+          console.error("cannot restore session =>", sessionId, err);
           session = null;
         }
       } else {
@@ -133,6 +138,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
             return undefined;
           },
         };
+        console.log("restored session =>", sessionId, request.session);
       } else {
         const nowDate = new Date(Date.now());
         request.session = {
@@ -154,6 +160,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
             return undefined;
           },
         };
+        console.log("made new session", sessionId, request.session);
       }
     });
 
@@ -181,7 +188,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
       ) {
         // TODO: Check signature [2].
         const [_, sid] = cookieMatchesSigned;
-        sessionId = sid;
+        sessionId = sid.split(".")[0];
       } else {
         sessionId = null;
       }
@@ -196,17 +203,15 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         let prevData: Session | null = null;
         try {
           prevData = await storeAdapter.readSessionById(sessionId);
-          // console.log("prev session loaded =>", sessionId, prevData);
+          console.log("read session success =>", sessionId, prevData);
         } catch (err) {
           console.error("cannot find session to load.", err);
           prevData = null;
         }
 
-        const { updatedAtEpoch, ...reqSessionData } = sessionData;
-
         const nowDate = new Date(Date.now());
         const nextSession: Session = {
-          ...reqSessionData,
+          ...sessionData,
           id: sessionId,
           updatedAtEpoch: nowDate.getTime(),
         };
@@ -225,12 +230,12 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         if (nextSessionStr !== reqSessionStr) {
           try {
             await storeAdapter.updateSessionById(sessionId, nextSession);
-            // console.log("updated session =>", sessionId, nextSessionData);
+            console.log("updated session =>", sessionId, nextSession);
           } catch (err) {
             console.error("could not save session data.", err);
           }
         } else {
-          // console.log("skipped useless write, session did not change");
+          console.log("skipped useless write, session did not change");
         }
       }
       return undefined;
