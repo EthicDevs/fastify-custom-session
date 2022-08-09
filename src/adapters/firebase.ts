@@ -2,6 +2,7 @@
 import type { App as FirebaseApp } from "firebase-admin/app";
 import type { Firestore as FirebaseStore } from "firebase-admin/firestore";
 import { getFirestore as getFirStore } from "firebase-admin/firestore";
+import debug from "debug";
 // lib
 import { CustomSession, ISessionStoreAdapter, Session } from "../types";
 import { generateUniqSerial } from "../serial";
@@ -14,6 +15,9 @@ interface FirebaseSessionAdapterOptions {
    */
   ignoreUndefinedProperties?: boolean; // @default true
 }
+
+const logTrace = debug("firebaseSessionAdapter:trace");
+const logError = debug("firebaseSessionAdapter:error");
 
 export class FirebaseSessionAdapter implements ISessionStoreAdapter {
   private firApp: FirebaseApp;
@@ -67,12 +71,17 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
     };
 
     const { reload, save, destroy, ...safeSession } = session;
-    await this.firStore
-      .collection(this.options.collectionName)
-      .doc(sessionId)
-      .create(safeSession);
-
-    return session;
+    try {
+      await this.firStore
+        .collection(this.options.collectionName)
+        .doc(sessionId)
+        .create(safeSession);
+      logTrace("Created session =>", sessionId, safeSession);
+      return session;
+    } catch (err) {
+      logError("Could not create session =>", sessionId, safeSession, err);
+      throw err;
+    }
   }
 
   async readSessionById(sessionId: string): Promise<Session | null> {
@@ -83,16 +92,13 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
         .get();
 
       if (sessDoc == null || sessDoc.exists === false) {
+        logTrace("Could not find session to read =>", sessionId);
         return null;
       }
-
+      logTrace("Read session =>", sessionId, sessDoc);
       return sessDoc.data() as Session;
     } catch (err) {
-      console.error(
-        "[FirebaseSessionAdapater] could not read session",
-        sessionId,
-        err,
-      );
+      logError("Could not read session =>", sessionId, err);
       return null;
     }
   }
@@ -107,13 +113,10 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
         .collection(this.options.collectionName)
         .doc(sessionId)
         .set(safeSession);
+      logTrace("Updated session =>", sessionId, safeSession);
       return true;
     } catch (err) {
-      console.error(
-        "[FirebaseSessionAdapater] could not update session",
-        sessionId,
-        err,
-      );
+      logError("Could not update session =>", sessionId, err);
       return false;
     }
   }
@@ -124,13 +127,10 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
         .collection(this.options.collectionName)
         .doc(sessionId)
         .delete();
+      logTrace("Deleted session =>", sessionId);
       return true;
     } catch (err) {
-      console.error(
-        "[FirebaseSessionAdapater] could not delete session",
-        sessionId,
-        err,
-      );
+      logError("Could not delete session =>", sessionId, err);
       return false;
     }
   }
