@@ -12,6 +12,7 @@ import makeFastifyPlugin from "fastify-plugin";
 // app
 import type { Session, SessionPluginOptions } from "./types";
 import { FASTIFY_VERSION_TARGET } from "./constants";
+import { generateUniqSerial } from "./serial";
 
 const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
   async (server, options) => {
@@ -100,7 +101,6 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
       }
 
       if (
-        session == null &&
         sessionId != null &&
         sessionId.trim() !== "" &&
         sessionId.trim() !== "undefined" &&
@@ -113,6 +113,8 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           console.error("cannot find session to load.", err);
           session = null;
         }
+      } else {
+        sessionId = generateUniqSerial();
       }
 
       if (session != null) {

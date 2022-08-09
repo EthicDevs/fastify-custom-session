@@ -4,17 +4,11 @@ import type { Firestore as FirebaseStore } from "firebase-admin/firestore";
 import { getFirestore as getFirStore } from "firebase-admin/firestore";
 // lib
 import { CustomSession, ISessionStoreAdapter, Session } from "../types";
+import { generateUniqSerial } from "../serial";
 
 interface FirebaseSessionAdapterOptions {
   collectionName: string; // @default sessions
   firebaseApp: FirebaseApp;
-}
-
-function generateUniqSerial(): string {
-  return "xxxx-xxxx-xxx-xxxx".replace(/[x]/g, (_) => {
-    const r = Math.floor(Math.random() * 16);
-    return r.toString(16);
-  });
 }
 
 export class FirebaseSessionAdapter implements ISessionStoreAdapter {
