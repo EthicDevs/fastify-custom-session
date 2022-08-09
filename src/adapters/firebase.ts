@@ -80,7 +80,12 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
       }
 
       return sessDoc.data() as Session;
-    } catch (_) {
+    } catch (err) {
+      console.error(
+        "[FirebaseSessionAdapater] could not read session",
+        sessionId,
+        err,
+      );
       return null;
     }
   }
@@ -96,7 +101,12 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
         .doc(sessionId)
         .set(safeSession);
       return true;
-    } catch (_) {
+    } catch (err) {
+      console.error(
+        "[FirebaseSessionAdapater] could not update session",
+        sessionId,
+        err,
+      );
       return false;
     }
   }
@@ -108,7 +118,12 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
         .doc(sessionId)
         .delete();
       return true;
-    } catch (_) {
+    } catch (err) {
+      console.error(
+        "[FirebaseSessionAdapater] could not delete session",
+        sessionId,
+        err,
+      );
       return false;
     }
   }
