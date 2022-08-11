@@ -2,12 +2,7 @@
 import debug from "debug";
 import nullfined from "nullfined";
 // lib
-import type {
-  CustomSession,
-  ISessionStoreAdapter,
-  JsonObject,
-  Session,
-} from "../types";
+import type { CustomSession, ISessionStoreAdapter, Session } from "../types";
 import { generateUniqSerial } from "../serial";
 
 interface ISession {
@@ -16,7 +11,8 @@ interface ISession {
   createdAt: Date;
   updatedAt: Date;
   expiresAt: Date | null;
-  data: JsonObject;
+  // unfortunately we cannot use JsonObject here bcz generated Prisma code is weird...
+  data: any; // JsonObject
   detectedUserAgent: string;
   detectedIPAddress: string;
 }
