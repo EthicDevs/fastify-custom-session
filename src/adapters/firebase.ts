@@ -27,6 +27,7 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
   private firApp: FirebaseApp;
   private firStore: FirebaseStore;
   private options: FirebaseSessionAdapterOptions;
+  private getUniqId: () => string = generateUniqSerial;
   // private sessionOptions: SessionPluginOptions;
 
   constructor(
@@ -43,6 +44,10 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
     return this;
   }
 
+  setUniqIdGenerator(uniqIdGenerator: () => string) {
+    this.getUniqId = uniqIdGenerator;
+  }
+
   async createSession(
     sessionData: CustomSession,
     metas: {
@@ -51,7 +56,7 @@ export class FirebaseSessionAdapter implements ISessionStoreAdapter {
     },
   ): Promise<Session> {
     const nowDate = new Date(Date.now());
-    const sessionId = generateUniqSerial();
+    const sessionId = this.getUniqId();
     const session: Session = {
       id: sessionId,
       createdAtEpoch: nowDate.getTime(),

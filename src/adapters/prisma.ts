@@ -65,9 +65,14 @@ model Session {
  */
 export class PrismaSessionAdapter implements ISessionStoreAdapter {
   private prismaClient: IPrismaClientAdapter;
+  private getUniqId: () => string = generateUniqSerial;
 
   constructor(prismaClient: IPrismaClientAdapter) {
     this.prismaClient = prismaClient;
+  }
+
+  setUniqIdGenerator(uniqIdGenerator: () => string) {
+    this.getUniqId = uniqIdGenerator;
   }
 
   async createSession(
@@ -78,7 +83,7 @@ export class PrismaSessionAdapter implements ISessionStoreAdapter {
     },
   ): Promise<Session> {
     const nowDate = new Date(Date.now());
-    const sessionId = generateUniqSerial();
+    const sessionId = this.getUniqId();
     const session: Session = {
       id: sessionId,
       createdAtEpoch: nowDate.getTime(),
