@@ -8,6 +8,12 @@
 
 A Fastify (v3.x+) plugin that let you use session and decide only where to load/save from/to
 
+## Built-in adapters
+
+- FirebaseSessionAdapter (firebase-admin) [fully working]
+- PrismaSessionAdapter (@prisma/client compat layer) [fully working]
+- PostgresSessionAdapter (pg, pg-pool) [wip]
+
 ## Installation
 
 ```shell
