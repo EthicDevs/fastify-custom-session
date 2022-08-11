@@ -28,6 +28,7 @@ function escapeSqlQuotes(str: string): string {
 export class PostgresSessionAdapter implements ISessionStoreAdapter {
   private options: PostgresSessionAdapterOptions;
   private dbPool: PgPool<PgClient>;
+  private getUniqId: () => string = generateUniqSerial;
 
   constructor(options: PostgresSessionAdapterOptions) {
     const connectionParams = new URL(options.databaseUrl);
@@ -45,6 +46,10 @@ export class PostgresSessionAdapter implements ISessionStoreAdapter {
     this.options = options;
   }
 
+  setUniqIdGenerator(uniqIdGenerator: () => string) {
+    this.getUniqId = uniqIdGenerator;
+  }
+
   async createSession(
     sessionData: CustomSession,
     metas: {
@@ -53,7 +58,7 @@ export class PostgresSessionAdapter implements ISessionStoreAdapter {
     },
   ): Promise<Session> {
     const nowDate = new Date(Date.now());
-    const sessionId = generateUniqSerial();
+    const sessionId = this.getUniqId();
     const session: Session = {
       id: sessionId,
       createdAtEpoch: nowDate.getTime(),

@@ -24,7 +24,9 @@ const logError = debug("customSession:error");
 const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
   async (server, options) => {
     const { initialSession, storeAdapter } = options;
+    const getUniqId = options?.getUniqId || generateUniqSerial;
 
+    storeAdapter.setUniqIdGenerator(getUniqId);
     server.decorateRequest("session", null);
 
     function getDestroySession(
@@ -124,7 +126,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           session = null;
         }
       } else {
-        sessionId = generateUniqSerial();
+        sessionId = getUniqId();
         logTrace("Generated new sessionId =>", sessionId);
       }
 

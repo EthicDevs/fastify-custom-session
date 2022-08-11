@@ -55,6 +55,12 @@ export declare interface Session {
 
 export interface ISessionStoreAdapter {
   /**
+   * A function that will be called once the `fastifyCustomSession` plugin is
+   * registered into the server so that the session adapter passed as options
+   * can make use of it to generate session id's or other unique ids.
+   */
+  setUniqIdGenerator(uniqIdGenerator: () => string): void;
+  /**
    * A function whose implementation will create/store the session and return
    * a new Session object. Also it gets passed some meta data so it's possible to
    * diff/merge the sessions with more confidence in case that's something you need.
@@ -142,4 +148,9 @@ export interface SessionPluginOptions {
    * the desired place to fit your requirements/needs.
    */
   storeAdapter: ISessionStoreAdapter;
+  /**
+   * A function that return a unique ID to be used in sessionId generation.
+   * If not provided it will default to xxxx-xxxx-xxxx-xxxx (short uuid).
+   */
+  getUniqId?: () => string;
 }
