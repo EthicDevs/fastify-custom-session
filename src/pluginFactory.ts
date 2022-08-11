@@ -80,6 +80,11 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         } catch (err) {
           logError("cannot destroy session.", sessionBackup.id, err);
           request.session = sessionBackup;
+          reply.cookie(
+            options.cookieName,
+            request.session.id,
+            options.cookieOptions,
+          );
           return false;
         }
       };
