@@ -1,6 +1,6 @@
 {
   "name": "@ethicdevs/fastify-custom-session",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "A Fastify (v3.x+) plugin that let you use session and decide only where to load/save from/to",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -39,7 +39,8 @@
   },
   "dependencies": {
     "debug": "^4.3.4",
-    "fastify-plugin": "^3.0.1"
+    "fastify-plugin": "^3.0.1",
+    "nullfined": "^1.1.0"
   },
   "devDependencies": {
     "@fastify/cookie": "6.0.0",
