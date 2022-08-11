@@ -22,7 +22,7 @@ export interface IPrismaClientAdapter {
       where: {
         id: string;
       };
-    }): Promise<ISession>;
+    }): Promise<ISession | null>;
     create(args: { data: ISession }): Promise<ISession>;
     delete(args: {
       where: {
