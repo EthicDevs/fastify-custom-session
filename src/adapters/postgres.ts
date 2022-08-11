@@ -22,6 +22,9 @@ function escapeSqlQuotes(str: string): string {
   return str.replace('"', "`");
 }
 
+/**
+ * /!\ WIP - Not working yet - WIP /!\
+ */
 export class PostgresSessionAdapter implements ISessionStoreAdapter {
   private options: PostgresSessionAdapterOptions;
   private dbPool: PgPool<PgClient>;
@@ -78,16 +81,18 @@ export class PostgresSessionAdapter implements ISessionStoreAdapter {
       const schema = escapeSqlQuotes(JSON.stringify(this.options.schemaName));
       const result = await client.query(
         `INSERT INTO ${schema}.${tableName} (
-          sid, created_at_unix, updated_at_unix, expires_at_unix, serialized_data, ip_address, user_agent
+          id, sid, created_at_unix, updated_at_unix,
+          expires_at_unix, serialized_data, ip_address, user_agent
         ) VALUES (
-          $1::text, $2::int, $3::int, $4::int, $5::text, $6::text, $7::text
-        );`,
+          null, $1::text, to_timestamp($2::int), to_timestamp($3::int),
+          to_timestamp($4::int), $5::jsonb, $6::text, $7::text
+        ) RETURNING sid;`,
         [
           session.id,
           session.createdAtEpoch,
           session.updatedAtEpoch,
           session.expiresAtEpoch,
-          JSON.stringify(session.data),
+          session.data,
           session.metas.detectedIPAddress,
           session.metas.detectedUserAgent,
         ],

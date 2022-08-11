@@ -43,10 +43,18 @@ function main() {
       sameSite: "lax",
       signed: true,
     },
-    initialSession: {
-      // ... your initial session shape goes here ...
+    initialSession: { // initial data in session (so you can avoid null's)
+      whateverYouWant: '<unset>',
+      aNullableProp: null,
+      mySuperObject: {
+        foo: '<unset>',
+        bar: 0,
+        baz: '<unset>',
+      };
     },
-    storeAdapter: new PickedSessionAdapter(/* ... AdapterOptions ... */) as any,
+    storeAdapter: new PickedSessionAdapter({
+      /* ... AdapterOptions ... */
+    }) as any,
   });
 }
 
@@ -61,7 +69,9 @@ then if you are a TypeScript user you will need to defined the shape of the
 // use declaration merging to provide custom session interface
 declare module "@ethicdevs/fastify-custom-session" {
   declare interface CustomSession {
+    // request.session.data shape
     whateverYouWant: string;
+    aNullableProp: null | string;
     mySuperObject: {
       foo: string;
       bar: number;
@@ -76,6 +86,7 @@ later on during request before you send the headers/response, typically in your 
 ```ts
 const myRequestHandler = async (request, reply) => {
   request.session.data.whateverYouWant = "foo";
+  request.session.data.aNullableProp = "not null anymore";
   request.session.data.mySuperObject = {
     foo: "bar",
     bar: 42,
@@ -91,13 +102,15 @@ const mySecondRequestHandler = async (request, reply) => {
                     | [p] whateverYouWant
                     | [p] mySuperObject */
 
-  request.session.data.whateverYouWant; // foo
-  request.session.data.object.foo; // bar
+  request.session.data.whateverYouWant; // "foo"
+  request.session.data.aNullableProp; // "not null anymore"
+  request.session.data.object.foo; // "bar"
   request.session.data.object.bar; // 42
 
   return reply.send(
     "Cool value from session:" + request.session.data.object.baz,
   );
+  // "Cool value from session: quxx"
 };
 ```
 

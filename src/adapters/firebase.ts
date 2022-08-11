@@ -19,6 +19,10 @@ interface FirebaseSessionAdapterOptions {
 const logTrace = debug("firebaseSessionAdapter:trace");
 const logError = debug("firebaseSessionAdapter:error");
 
+/**
+ * A Firebase Session Adapter conforming to the `ISessionStoreAdapter` interface.
+ * Fully working.
+ */
 export class FirebaseSessionAdapter implements ISessionStoreAdapter {
   private firApp: FirebaseApp;
   private firStore: FirebaseStore;
