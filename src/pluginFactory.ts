@@ -49,15 +49,37 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         if (request.session == null) {
           return false;
         }
+        const sessionBackup = request.session;
         try {
-          await storeAdapter.deleteSessionById(request.session.id);
-          request.session.data = {};
+          const sessId = sessionBackup.id;
+          const nowDate = new Date(Date.now());
+          request.session = {
+            id: getUniqId(),
+            createdAtEpoch: nowDate.getTime(),
+            updatedAtEpoch: nowDate.getTime(),
+            expiresAtEpoch: null,
+            data: {},
+            metas: {
+              detectedUserAgent: "<not-set>",
+              detectedIPAddress: "<not-set>",
+            },
+            destroy: getDestroySession(request, reply), // will be overidden by next onRequest
+            // no-op for compatibility
+            reload: async function reload(): Promise<void> {
+              return undefined;
+            },
+            save: async function save(): Promise<void> {
+              return undefined;
+            },
+          };
+          await storeAdapter.deleteSessionById(sessId);
           if (reply.sent === false) {
             reply.clearCookie(options.cookieName, options.cookieOptions);
           }
           return true;
         } catch (err) {
-          logError("cannot destroy session.", request.session?.id, err);
+          logError("cannot destroy session.", sessionBackup.id, err);
+          request.session = sessionBackup;
           return false;
         }
       };
