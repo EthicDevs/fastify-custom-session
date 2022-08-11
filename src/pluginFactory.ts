@@ -72,10 +72,10 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
               return undefined;
             },
           };
-          await storeAdapter.deleteSessionById(sessId);
           if (reply.sent === false) {
             reply.clearCookie(options.cookieName, options.cookieOptions);
           }
+          await storeAdapter.deleteSessionById(sessId);
           return true;
         } catch (err) {
           logError("cannot destroy session.", sessionBackup.id, err);
