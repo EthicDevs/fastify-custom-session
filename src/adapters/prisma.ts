@@ -1,13 +1,12 @@
 // 3rd-party
 import debug from "debug";
+import nullfined from "nullfined";
 // lib
 import type {
   CustomSession,
   ISessionStoreAdapter,
   Session,
-  SerializableValueNonNull,
   SerializableObjectNonNull,
-  SerializableArrayNonNull,
 } from "../types";
 import { generateUniqSerial } from "../serial";
 
@@ -17,10 +16,7 @@ interface ISession {
   createdAt: Date;
   updatedAt: Date;
   expiresAt?: Date;
-  data?:
-    | SerializableValueNonNull
-    | SerializableObjectNonNull
-    | SerializableArrayNonNull;
+  data?: SerializableObjectNonNull;
   detectedUserAgent: string;
   detectedIPAddress: string;
 }
@@ -186,7 +182,10 @@ export class PrismaSessionAdapter implements ISessionStoreAdapter {
           session.expiresAtEpoch != null
             ? new Date(session.expiresAtEpoch)
             : undefined,
-        data: session.data || {},
+        // recursive null -> undefined
+        data: (session.data == null
+          ? {}
+          : nullfined(session.data)) as SerializableObjectNonNull,
         detectedIPAddress: session.metas.detectedIPAddress || "",
         detectedUserAgent: session.metas.detectedUserAgent,
       };

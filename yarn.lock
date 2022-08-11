@@ -2972,6 +2972,10 @@ lodash.includes@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/lodash.includes/-/lodash.includes-4.3.0.tgz#60bb98a87cb923c68ca1e51325483314849f553f"
 
+lodash.isarray@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/lodash.isarray/-/lodash.isarray-4.0.0.tgz#2aca496b28c4ca6d726715313590c02e6ea34403"
+
 lodash.isboolean@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/lodash.isboolean/-/lodash.isboolean-3.0.3.tgz#6c2e171db2a257cd96802fd43b01b20d5f5870f6"
@@ -2983,6 +2987,10 @@ lodash.isinteger@^4.0.4:
 lodash.isnumber@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/lodash.isnumber/-/lodash.isnumber-3.0.3.tgz#3ce76810c5928d03352301ac287317f11c0b1ffc"
+
+lodash.isobject@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/lodash.isobject/-/lodash.isobject-3.0.2.tgz#3c8fb8d5b5bf4bf90ae06e14f2a530a4ed935e1d"
 
 lodash.isplainobject@^4.0.6:
   version "4.0.6"
@@ -3200,6 +3208,12 @@ npm-run-path@^4.0.1:
   resolved "https://registry.yarnpkg.com/npm-run-path/-/npm-run-path-4.0.1.tgz#b7ecd1e5ed53da8e37a55e1c2269e0b97ed748ea"
   dependencies:
     path-key "^3.0.0"
+
+nullfined@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/nullfined/-/nullfined-1.1.0.tgz#cabdab7c563abe8861edf97e0eec582f38295cd0"
+  dependencies:
+    vaper "^1.0.1-0"
 
 nwsapi@^2.2.0:
   version "2.2.0"
@@ -4198,6 +4212,13 @@ validate-npm-package-license@^3.0.1:
   dependencies:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
+
+vaper@^1.0.1-0:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/vaper/-/vaper-1.0.1.tgz#92d071a7d77e48660d37e3d632f45611fc64771d"
+  dependencies:
+    lodash.isarray "^4.0.0"
+    lodash.isobject "^3.0.2"
 
 w3c-hr-time@^1.0.2:
   version "1.0.2"
