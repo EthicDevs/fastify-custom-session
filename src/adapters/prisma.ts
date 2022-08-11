@@ -9,7 +9,7 @@ interface ISession {
   sessionId: string;
   createdAt: Date;
   updatedAt: Date;
-  expiresAt?: Date;
+  expiresAt?: Date | null;
   data?: {};
   detectedUserAgent: string;
   detectedIPAddress: string;
@@ -108,7 +108,7 @@ export class PrismaSessionAdapter implements ISessionStoreAdapter {
           expiresAt:
             session.expiresAtEpoch != null
               ? new Date(session.expiresAtEpoch)
-              : undefined,
+              : null,
           data: session.data,
           detectedIPAddress: session.metas.detectedIPAddress || "",
           detectedUserAgent: session.metas.detectedUserAgent,
@@ -175,7 +175,7 @@ export class PrismaSessionAdapter implements ISessionStoreAdapter {
         expiresAt:
           session.expiresAtEpoch != null
             ? new Date(session.expiresAtEpoch)
-            : undefined,
+            : null,
         data: session.data,
         detectedIPAddress: session.metas.detectedIPAddress || "",
         detectedUserAgent: session.metas.detectedUserAgent,
