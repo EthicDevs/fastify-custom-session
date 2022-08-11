@@ -16,7 +16,7 @@ interface ISession {
   createdAt: Date;
   updatedAt: Date;
   expiresAt?: Date | null;
-  data?: SerializableObjectNonNull;
+  data?: SerializableObjectNonNull | null;
   detectedUserAgent: string;
   detectedIPAddress: string;
 }
@@ -88,7 +88,7 @@ export class PrismaSessionAdapter implements ISessionStoreAdapter {
       createdAtEpoch: nowDate.getTime(),
       updatedAtEpoch: nowDate.getTime(),
       expiresAtEpoch: null,
-      data: sessionData,
+      data: sessionData || {},
       metas: {
         detectedIPAddress: metas.detectedIPAddress || "",
         detectedUserAgent: metas.detectedUserAgent,
