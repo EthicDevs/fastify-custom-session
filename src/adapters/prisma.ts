@@ -5,8 +5,8 @@ import nullfined from "nullfined";
 import type {
   CustomSession,
   ISessionStoreAdapter,
+  JsonObject,
   Session,
-  SerializableObjectNonNull,
 } from "../types";
 import { generateUniqSerial } from "../serial";
 
@@ -15,8 +15,8 @@ interface ISession {
   sessionId: string;
   createdAt: Date;
   updatedAt: Date;
-  expiresAt?: Date | null;
-  data?: SerializableObjectNonNull | null;
+  expiresAt: Date | null;
+  data: JsonObject;
   detectedUserAgent: string;
   detectedIPAddress: string;
 }
@@ -181,11 +181,9 @@ export class PrismaSessionAdapter implements ISessionStoreAdapter {
         expiresAt:
           session.expiresAtEpoch != null
             ? new Date(session.expiresAtEpoch)
-            : undefined,
+            : null,
         // recursive null -> undefined
-        data: (session.data == null
-          ? {}
-          : nullfined(session.data)) as SerializableObjectNonNull,
+        data: session.data == null ? {} : nullfined(session.data),
         detectedIPAddress: session.metas.detectedIPAddress || "",
         detectedUserAgent: session.metas.detectedUserAgent,
       };
@@ -194,8 +192,16 @@ export class PrismaSessionAdapter implements ISessionStoreAdapter {
         where: {
           id: sessionId,
         },
-        create: sessionData,
-        update: sessionData,
+        create: {
+          ...sessionData,
+          expiresAt:
+            sessionData.expiresAt == null ? null : sessionData.expiresAt,
+        },
+        update: {
+          ...sessionData,
+          expiresAt:
+            sessionData.expiresAt == null ? null : sessionData.expiresAt,
+        },
       });
 
       logTrace("Read session =>", sessionId, session);

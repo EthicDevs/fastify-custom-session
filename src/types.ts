@@ -8,33 +8,33 @@ export declare type passwordsMap = {
 
 export declare type password = string | passwordsMap;
 
-export declare type SerializableValue = string | number | boolean | null;
-export declare type SerializableValueNonNull = string | number | boolean;
-export declare type SerializableObject = {
-  [x: string | symbol]:
-    | SerializableValue
-    | SerializableObject
-    | SerializableArray;
-};
-export declare type SerializableObjectNonNull = {
-  [x: string | symbol]:
-    | SerializableValueNonNull
-    | SerializableObjectNonNull
-    | SerializableArrayNonNull;
-};
-export declare type SerializableArray = (
-  | SerializableValue
-  | SerializableObject
-  | SerializableArray
-)[];
-export declare type SerializableArrayNonNull = (
-  | SerializableValueNonNull
-  | SerializableObjectNonNull
-  | SerializableArrayNonNull
-)[];
+/**
+ * From https://github.com/sindresorhus/type-fest/
+ * Matches a JSON object.
+ * This type can be useful to enforce some input to be JSON-compatible or as a super-type to be extended from.
+ */
+export type JsonObject = { [Key in string]: JsonValue };
+
+/**
+ * From https://github.com/sindresorhus/type-fest/
+ * Matches a JSON array.
+ */
+export interface JsonArray extends Array<JsonValue> {}
+
+/**
+ * From https://github.com/sindresorhus/type-fest/
+ * Matches any valid JSON value.
+ */
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | JsonObject
+  | JsonArray
+  | null;
 
 // So it's possible to override this through declaration merging
-export declare interface CustomSession extends SerializableObject {}
+export declare interface CustomSession extends JsonObject {}
 
 export declare interface Session {
   id: string;
