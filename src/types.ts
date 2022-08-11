@@ -8,7 +8,7 @@ export declare type passwordsMap = {
 
 export declare type password = string | passwordsMap;
 
-export declare type SerializableValue = string | symbol | number | boolean;
+export declare type SerializableValue = string | number | boolean | null;
 export declare type SerializableObject = {
   [x: string | symbol]:
     | SerializableValue

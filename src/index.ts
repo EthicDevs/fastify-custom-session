@@ -16,6 +16,7 @@ export type {
 } from "../src/types";
 
 export { FirebaseSessionAdapter } from "./adapters/firebase";
-// export { PostgresSessionAdapter } from "./adapters/postgres";
+export { PostgresSessionAdapter } from "./adapters/postgres";
+export { PrismaSessionAdapter } from "./adapters/prisma";
 
 export default makePlugin();

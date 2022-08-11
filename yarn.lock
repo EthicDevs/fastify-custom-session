@@ -1875,7 +1875,7 @@ find-up@^4.0.0, find-up@^4.1.0:
     locate-path "^5.0.0"
     path-exists "^4.0.0"
 
-firebase-admin@^11.0.0:
+firebase-admin@>=11.0.0:
   version "11.0.1"
   resolved "https://registry.yarnpkg.com/firebase-admin/-/firebase-admin-11.0.1.tgz#68b11b55af70eb9b9a4c8b2cdfa86c892e9ba91b"
   dependencies:
@@ -3333,7 +3333,7 @@ pg-int8@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/pg-int8/-/pg-int8-1.0.1.tgz#943bd463bf5b71b4170115f80f8efc9a0c0eb78c"
 
-pg-pool@^3.5.1:
+pg-pool@>=3.5.1, pg-pool@^3.5.1:
   version "3.5.1"
   resolved "https://registry.yarnpkg.com/pg-pool/-/pg-pool-3.5.1.tgz#f499ce76f9bf5097488b3b83b19861f28e4ed905"
 
@@ -3351,7 +3351,7 @@ pg-types@^2.1.0, pg-types@^2.2.0:
     postgres-date "~1.0.4"
     postgres-interval "^1.1.0"
 
-pg@^8.7.3:
+pg@>=8.7.3:
   version "8.7.3"
   resolved "https://registry.yarnpkg.com/pg/-/pg-8.7.3.tgz#8a5bdd664ca4fda4db7997ec634c6e5455b27c44"
   dependencies:
