@@ -15,7 +15,7 @@ interface ISession {
   sessionId: string;
   createdAt: Date;
   updatedAt: Date;
-  expiresAt?: Date;
+  expiresAt?: Date | null;
   data?: SerializableObjectNonNull;
   detectedUserAgent: string;
   detectedIPAddress: string;
