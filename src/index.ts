@@ -9,10 +9,12 @@ declare module "fastify" {
 import { makePlugin } from "./pluginFactory";
 
 export type {
-  Session,
   CustomSession,
   ISessionStoreAdapter,
-  ISessionStoreAdapterConstructable,
+  JsonArray,
+  JsonObject,
+  JsonValue,
+  Session,
 } from "../src/types";
 
 export { FirebaseSessionAdapter } from "./adapters/firebase";
