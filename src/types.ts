@@ -9,16 +9,28 @@ export declare type passwordsMap = {
 export declare type password = string | passwordsMap;
 
 export declare type SerializableValue = string | number | boolean | null;
+export declare type SerializableValueNonNull = string | number | boolean;
 export declare type SerializableObject = {
   [x: string | symbol]:
     | SerializableValue
     | SerializableObject
     | SerializableArray;
 };
+export declare type SerializableObjectNonNull = {
+  [x: string | symbol]:
+    | SerializableValueNonNull
+    | SerializableObjectNonNull
+    | SerializableArrayNonNull;
+};
 export declare type SerializableArray = (
   | SerializableValue
   | SerializableObject
   | SerializableArray
+)[];
+export declare type SerializableArrayNonNull = (
+  | SerializableValueNonNull
+  | SerializableObjectNonNull
+  | SerializableArrayNonNull
 )[];
 
 // So it's possible to override this through declaration merging
