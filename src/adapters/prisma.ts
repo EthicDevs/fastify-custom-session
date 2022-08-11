@@ -1,7 +1,14 @@
 // 3rd-party
 import debug from "debug";
 // lib
-import type { CustomSession, ISessionStoreAdapter, Session } from "../types";
+import type {
+  CustomSession,
+  ISessionStoreAdapter,
+  Session,
+  SerializableValueNonNull,
+  SerializableObjectNonNull,
+  SerializableArrayNonNull,
+} from "../types";
 import { generateUniqSerial } from "../serial";
 
 interface ISession {
@@ -9,8 +16,11 @@ interface ISession {
   sessionId: string;
   createdAt: Date;
   updatedAt: Date;
-  expiresAt?: Date | null;
-  data?: {} | null;
+  expiresAt?: Date;
+  data?:
+    | SerializableValueNonNull
+    | SerializableObjectNonNull
+    | SerializableArrayNonNull;
   detectedUserAgent: string;
   detectedIPAddress: string;
 }
@@ -109,7 +119,7 @@ export class PrismaSessionAdapter implements ISessionStoreAdapter {
             session.expiresAtEpoch != null
               ? new Date(session.expiresAtEpoch)
               : undefined,
-          data: session.data,
+          data: session.data || {},
           detectedIPAddress: session.metas.detectedIPAddress || "",
           detectedUserAgent: session.metas.detectedUserAgent,
         } as ISession,
@@ -176,7 +186,7 @@ export class PrismaSessionAdapter implements ISessionStoreAdapter {
           session.expiresAtEpoch != null
             ? new Date(session.expiresAtEpoch)
             : undefined,
-        data: session.data,
+        data: session.data || {},
         detectedIPAddress: session.metas.detectedIPAddress || "",
         detectedUserAgent: session.metas.detectedUserAgent,
       };
