@@ -10,7 +10,7 @@ interface ISession {
   createdAt: Date;
   updatedAt: Date;
   expiresAt?: Date | null;
-  data?: {};
+  data?: {} | null;
   detectedUserAgent: string;
   detectedIPAddress: string;
 }
