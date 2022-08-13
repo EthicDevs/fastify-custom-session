@@ -161,6 +161,10 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         // set helper functions on the session object
         request.session = {
           ...session,
+          data: {
+            ...options.initialSession, // so undefined gets back as null
+            ...session.data,
+          },
           destroy: getDestroySession(request, reply),
           // no-op for compatibility
           reload: async function reload(): Promise<void> {
@@ -246,6 +250,10 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         const nowDate = new Date(Date.now());
         const nextSession: Session = {
           ...sessionData,
+          data: {
+            ...options.initialSession, // so undefined gets back as null
+            ...sessionData.data,
+          },
           id: sessionId,
           updatedAtEpoch: nowDate.getTime(),
         };
