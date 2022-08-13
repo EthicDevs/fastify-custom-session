@@ -41,8 +41,8 @@ export interface IPrismaClientAdapter {
   };
 }
 
-const logTrace = debug("postgresSessionAdapter:trace");
-const logError = debug("postgresSessionAdapter:error");
+const logTrace = debug("prismaSessionAdapter:trace");
+const logError = debug("prismaSessionAdapter:error");
 
 /*
 model Session {

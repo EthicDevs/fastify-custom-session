@@ -57,7 +57,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
             id: getUniqId(),
             createdAtEpoch: nowDate.getTime(),
             updatedAtEpoch: nowDate.getTime(),
-            expiresAtEpoch: null,
+            expiresAtEpoch: -1, // make sure it expires right now.
             data: {},
             metas: {
               detectedUserAgent: "<not-set>",
@@ -201,7 +201,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
     });
 
     server.addHook("onSend", async (request) => {
-      if (request.session == null) {
+      if (request.session == null || request.session?.expiresAtEpoch === -1) {
         return undefined;
       }
 
