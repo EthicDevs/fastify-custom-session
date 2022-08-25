@@ -123,6 +123,36 @@ const mySecondRequestHandler = async (request, reply) => {
 then enjoy the session being available both in your controllers/handlers and in
 your data store table/collection (linked to the Adapter you chosen in first step).
 
+## Debugging
+
+This library make use of the [`debug`](https://npmjs.com/package/debug) package,
+thus it's possible to make the output of the program more verbose.
+
+The plugin itself, and the adapters have their own "scopes" of logs so its possible
+to troubleshoot only with logs from the plugin, or with logs from the adapter(s) or both.
+
+```bash
+# Syntax and examples:
+# DEBUG=$scope:$subscope $(...command)
+
+# Show all logs kinds from the customSession plugin
+$ DEBUG=customSession:* yarn dev
+
+# Show only trace logs from the customSession plugin
+$ DEBUG=customSession:trace yarn dev
+
+# Show only error logs from the customSession plugin
+$ DEBUG=customSession:error yarn dev
+```
+
+**Note**: in this example, `$scope` could be:
+
+- `customSession` ;
+- `prismaSessionAdapter` ;
+- `firebaseSessionAdapter` ;
+- `postgresSessionAdapter` ;
+- `yourOwnSessionAdapter`.
+
 ## License
 
 The [MIT](/LICENSE) license.
