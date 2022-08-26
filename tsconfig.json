@@ -50,6 +50,7 @@
     "./docs",
     "./node_modules",
     "./src/**/*.test.ts",
+    "./tests",
     "**/node_modules/**"
   ]
 }
