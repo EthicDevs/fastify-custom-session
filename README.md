@@ -2,7 +2,7 @@
 
 [![NPM](https://img.shields.io/npm/v/@ethicdevs/fastify-custom-session?color=red)](https://www.npmjs.com/@ethicdevs/fastify-custom-session)
 [![MIT License](https://img.shields.io/github/license/ethicdevs/fastify-custom-session.svg?color=blue)](https://github.com/ethicdevs/fastify-custom-session/blob/master/LICENSE)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=ethicdevs/fastify-custom-session)](https://dependabot.com)
+[![ci-master](https://github.com/EthicDevs/fastify-custom-session/actions/workflows/ci-master.yml/badge.svg)](https://github.com/EthicDevs/fastify-custom-session/actions/workflows/ci-master.yml)
 [![Average issue resolution time](https://isitmaintained.com/badge/resolution/ethicdevs/fastify-custom-session.svg)](https://isitmaintained.com/project/ethicdevs/fastify-custom-session)
 [![Number of open issues](https://isitmaintained.com/badge/open/ethicdevs/fastify-custom-session.svg)](https://isitmaintained.com/project/ethicdevs/fastify-custom-session)
 
