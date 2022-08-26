@@ -6,7 +6,7 @@ import { Client as PgClient } from "pg";
 import { default as PgPool } from "pg-pool";
 // lib
 import type { CustomSession, ISessionStoreAdapter, Session } from "../types";
-import { generateUniqSerial } from "../serial";
+import { generateUniqSerial } from "../helpers";
 
 interface PostgresSessionAdapterOptions {
   databaseUrl: string;

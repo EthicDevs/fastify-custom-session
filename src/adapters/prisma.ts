@@ -3,7 +3,7 @@ import debug from "debug";
 import nullfined from "nullfined";
 // lib
 import type { CustomSession, ISessionStoreAdapter, Session } from "../types";
-import { generateUniqSerial } from "../serial";
+import { generateUniqSerial } from "../helpers";
 
 interface ISession {
   id: string;

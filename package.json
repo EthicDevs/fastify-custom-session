@@ -68,9 +68,9 @@
     "tslib": ">=2.4.0"
   },
   "optionalDependencies": {
-    "firebase-admin": ">=11.0.0",
-    "pg": ">=8.7.3",
-    "pg-pool": ">=3.5.1"
+    "firebase-admin": "^11.0.0",
+    "pg": "^8.7.3",
+    "pg-pool": "^3.5.1"
   },
   "jest": {
     "preset": "ts-jest/presets/js-with-ts",
