@@ -18,6 +18,7 @@ export type {
 } from "../src/types";
 
 export { FirebaseSessionAdapter } from "./adapters/firebase";
+export { MockSessionAdapter } from "./adapters/mock";
 export { PostgresSessionAdapter } from "./adapters/postgres";
 export { PrismaSessionAdapter } from "./adapters/prisma";
 

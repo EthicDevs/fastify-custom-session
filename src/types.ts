@@ -87,24 +87,29 @@ export interface ISessionStoreAdapter {
       detectedIPAddress?: string;
       detectedUserAgent: string;
     },
-  ): Promise<Session>;
+  ): Session | Promise<Session>;
   /**
    * A function whose implementation will retrieve a session given its id and
    * return it, or null if it couldn't be created.
    */
-  readSessionById(sessionId: string): Promise<Session | null>;
+  readSessionById(
+    sessionId: string,
+  ): (Session | null) | Promise<Session | null>;
   /**
    * A function whose implementation will update a session given its id and the
    * new session state. It will returns with a boolean indicating if the update
    *  was successful or not in the system where the session is saved.
    */
-  updateSessionById(sessionId: string, session: Session): Promise<boolean>;
+  updateSessionById(
+    sessionId: string,
+    session: Session,
+  ): boolean | Promise<boolean>;
   /**
    * A function whose implementation will delete a session given its id. It will
    * returns with a boolean indicating if the deletion was successful or not in
    * the system where the session is saved.
    */
-  deleteSessionById(sessionId: string): Promise<boolean>;
+  deleteSessionById(sessionId: string): boolean | Promise<boolean>;
 }
 
 export interface ISessionStoreAdapterConstructable<T> {
@@ -114,12 +119,13 @@ export interface ISessionStoreAdapterConstructable<T> {
 export interface SessionPluginOptions {
   /**
    * This is the cookie name that will be used inside the browser. You should make sure it's unique given
-   * your application. Example: vercel-session
+   * your application.
+   * Example: `my_app_sid`.
    */
   cookieName: string;
   /**
    * This is the password(s) that will be used to encrypt the cookie. It can be either a string or an object
-   * like {1: "password", 2: password}.
+   * like `{1: "password", 2: password}`.
    *
    * When you provide multiple passwords then all of them will be used to decrypt the cookie and only the most
    * recent (= highest key, 2 in this example) password will be used to encrypt the cookie. This allow you
@@ -127,9 +133,9 @@ export interface SessionPluginOptions {
    */
   password: password;
   /**
-   * This is the time in seconds that the session will be valid for. This also set the max-age attribute of
+   * This is the time in seconds that the session will be valid for. This also set the `max-age` attribute of
    * the cookie automatically (minus 60 seconds so that the cookie always expire before the session).
-   * if set will take precedence over cookiesOptions.maxAge
+   * if set will take precedence over `cookiesOptions.maxAge`.
    */
   ttl?: number;
   /**
@@ -137,22 +143,22 @@ export interface SessionPluginOptions {
    * You can see all of them here: https://github.com/jshttp/cookie#options-1.
    *
    * If you want to use "session cookies" (cookies that are deleted when the browser is closed) then you need
-   * to pass cookieOptions: { maxAge: undefined }.
+   * to **unset** `cookieOptions.maxAge` and `options.ttl` options.
    */
   cookieOptions?: CookieSerializeOptions;
   /**
-   * The initial shape of the Session data, used to provide typings to TypeScript users.
+   * The initial shape of the `Session.data`.
    */
   initialSession: CustomSession;
   /**
-   * A class/object that implements/conforms to the ISessionStoreAdapter interface.
+   * A class/object that implements/conforms to the `ISessionStoreAdapter` interface.
    * This is where you implement the getters/setters so that data can flow into
    * the desired place to fit your requirements/needs.
    */
   storeAdapter: ISessionStoreAdapter;
   /**
    * A function that return a unique ID to be used in sessionId generation.
-   * If not provided it will default to xxxx-xxxx-xxxx-xxxx (short uuid).
+   * If not provided it will default to `xxxx-xxxx-xxxx-xxxx` (short uuid).
    */
   getUniqId?: () => string;
 }

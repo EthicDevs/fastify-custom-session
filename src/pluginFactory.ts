@@ -13,16 +13,15 @@ import debug from "debug";
 // app
 import type { Session, SessionPluginOptions } from "./types";
 import { FASTIFY_VERSION_TARGET } from "./constants";
-import { generateUniqSerial } from "./serial";
-
-const UNSIGNED_COOKIE_REGEXP = /^(.*)$/i;
-const SIGNED_COOKIE_REGEXP = /^([^.].*)\.(.*)$/i;
+import { generateUniqSerial, parseSessionIdFromCookieData } from "./helpers";
 
 const logTrace = debug("customSession:trace");
 const logError = debug("customSession:error");
 
 const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
   async (server, options) => {
+    logTrace("custom session plugin made!");
+
     const { initialSession, storeAdapter, ttl } = options;
     const getUniqId = options?.getUniqId || generateUniqSerial;
     // session ttl minus 60 seconds so cookie expires before the session
@@ -68,10 +67,10 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
             },
             destroy: getDestroySession(request, reply), // will be overidden by next onRequest
             // no-op for compatibility
-            reload: async function reload(): Promise<void> {
+            async reload() {
               return undefined;
             },
-            save: async function save(): Promise<void> {
+            async save() {
               return undefined;
             },
           };
@@ -137,25 +136,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           logError("could not create session =>", sessionId, err);
         }
       } else {
-        const cookieMatchesUnsigned = UNSIGNED_COOKIE_REGEXP.exec(cookieData);
-        const cookieMatchesSigned = SIGNED_COOKIE_REGEXP.exec(cookieData);
-
-        if (
-          cookieMatchesUnsigned != null &&
-          Array.isArray(cookieMatchesUnsigned)
-        ) {
-          const [_, sid] = cookieMatchesUnsigned;
-          sessionId = sid;
-        } else if (
-          cookieMatchesSigned != null &&
-          Array.isArray(cookieMatchesSigned)
-        ) {
-          // TODO: Check signature [2].
-          const [_, sid] = cookieMatchesSigned;
-          sessionId = sid;
-        } else {
-          sessionId = cookieData;
-        }
+        sessionId = parseSessionIdFromCookieData(cookieData);
       }
 
       if (
@@ -195,10 +176,10 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           },
           destroy: getDestroySession(request, reply),
           // no-op for compatibility
-          reload: async function reload(): Promise<void> {
+          async reload() {
             return undefined;
           },
-          save: async function save(): Promise<void> {
+          async save() {
             return undefined;
           },
         };
@@ -216,10 +197,10 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           },
           destroy: getDestroySession(request, reply),
           // no-op for compatibility
-          reload: async function reload(): Promise<void> {
+          async reload() {
             return undefined;
           },
-          save: async function save(): Promise<void> {
+          async save() {
             return undefined;
           },
         };
@@ -235,26 +216,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
       const sessionData: Session = request.session;
       const cookieData = request.cookies[options.cookieName];
 
-      let sessionId: null | string = null;
-      const cookieMatchesUnsigned = UNSIGNED_COOKIE_REGEXP.exec(cookieData);
-      const cookieMatchesSigned = SIGNED_COOKIE_REGEXP.exec(cookieData);
-
-      if (
-        cookieMatchesUnsigned != null &&
-        Array.isArray(cookieMatchesUnsigned)
-      ) {
-        const [_, sid] = cookieMatchesUnsigned;
-        sessionId = sid;
-      } else if (
-        cookieMatchesSigned != null &&
-        Array.isArray(cookieMatchesSigned)
-      ) {
-        // TODO: Check signature [2].
-        const [_, sid] = cookieMatchesSigned;
-        sessionId = sid;
-      } else {
-        sessionId = null;
-      }
+      let sessionId = parseSessionIdFromCookieData(cookieData);
 
       if (
         sessionId != null &&

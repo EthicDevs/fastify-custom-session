@@ -5,7 +5,7 @@ import { getFirestore as getFirStore } from "firebase-admin/firestore";
 import debug from "debug";
 // lib
 import { CustomSession, ISessionStoreAdapter, Session } from "../types";
-import { generateUniqSerial } from "../serial";
+import { generateUniqSerial } from "../helpers";
 
 interface FirebaseSessionAdapterOptions {
   collectionName: string; // @default sessions

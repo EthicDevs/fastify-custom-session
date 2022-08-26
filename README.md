@@ -25,30 +25,43 @@ $ npm i @ethicdevs/fastify-custom-session
 ## Usage
 
 ```ts
+import fastifyCookies from "@fastify/cookie";
 import fastifyCustomSession, {
-  // Adapters for popular softwares/services
-  FirebaseSessionAdapter, // Pick one ;)
-  PostgresSessionAdapter, // Pick one ;)
-  PrismaSessionAdapter, // Pick one ;)
+  FirebaseSessionAdapter, // Firebase Firestore adapter
+  MockSessionAdapter, // In Memory adapter (for testing)
+  PostgresSessionAdapter, // PostgreSQL adapter (pg/pg-pool)
+  PrismaSessionAdapter, // Prisma Client adapter
 } from "@ethicdevs/fastify-custom-session";
 
 let server = null;
 
 function main() {
   server = fastify(); // provide your own
-  // ...
+
+  // some cookies options
+  const cookieSecret = "super-secret-session-secret"; // or better: Env.SESSION_SECRET
+  const cookiesOptions = {
+    domain: `.my-app.com`, // or better: `.${Env.DEPLOYMENT_DOMAIN}`,
+    httpOnly: true,
+    expires: new Date(Date.now() + 10 * (8 * 3600) * 1000), // 10 days in secs
+    path: "/",
+    secure: false,
+    sameSite: "lax",
+    signed: true,
+  };
+  // register the cookies plugin FIRST.
+  server.register(fastifyCookies, {
+    parseOptions: cookiesOptions,
+    secret: cookieSecret,
+  });
+  // then register the customSession plugin.
   server.register(fastifyCustomSession, {
-    password: "super-secret-session-secret", // or better: Env.SESSION_SECRET,
+    password: cookieSecret,
     cookieName: "my_app_session_id", // or better: Env.COOKIE_NAME,
-    cookieOptions: {
-      domain: `.my-app.com`, // or better: `.${Env.DEPLOYMENT_DOMAIN}`,
-      httpOnly: true,
-      expires: new Date(Date.now() + 10 * (8 * 3600) * 1000), // 10 days in secs
-      path: "/",
-      secure: false,
-      sameSite: "lax",
-      signed: true,
-    },
+    cookieOptions,
+    storeAdapter: new MockSessionAdapter({
+      /* ... AdapterOptions ... */
+    }) as any,
     initialSession: { // initial data in session (so you can avoid null's)
       whateverYouWant: '<unset>',
       aNullableProp: null,
@@ -58,16 +71,13 @@ function main() {
         baz: '<unset>',
       };
     },
-    storeAdapter: new PickedSessionAdapter({
-      /* ... AdapterOptions ... */
-    }) as any,
   });
 }
 
 main();
 ```
 
-then if you are a TypeScript user you will need to defined the shape of the
+then if you are a TypeScript user you will need to define the shape of the
 `session.data` object, you can do so easily by adding the following lines to your
 `types/global/index.d.ts` file:
 
@@ -148,8 +158,9 @@ $ DEBUG=customSession:error yarn dev
 **Note**: in this example, `$scope` could be:
 
 - `customSession` ;
-- `prismaSessionAdapter` ;
 - `firebaseSessionAdapter` ;
+- `mockSessionAdapter` ;
+- `prismaSessionAdapter` ;
 - `postgresSessionAdapter` ;
 - `yourOwnSessionAdapter`.
 
