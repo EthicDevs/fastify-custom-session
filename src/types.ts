@@ -82,6 +82,7 @@ export interface ISessionStoreAdapter {
    */
   createSession(
     sessionData: CustomSession,
+    expiresAt: Date | null,
     metas: {
       detectedIPAddress?: string;
       detectedUserAgent: string;
@@ -128,6 +129,7 @@ export interface SessionPluginOptions {
   /**
    * This is the time in seconds that the session will be valid for. This also set the max-age attribute of
    * the cookie automatically (minus 60 seconds so that the cookie always expire before the session).
+   * if set will take precedence over cookiesOptions.maxAge
    */
   ttl?: number;
   /**

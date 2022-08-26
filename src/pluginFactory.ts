@@ -23,8 +23,11 @@ const logError = debug("customSession:error");
 
 const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
   async (server, options) => {
-    const { initialSession, storeAdapter } = options;
+    const { initialSession, storeAdapter, ttl } = options;
     const getUniqId = options?.getUniqId || generateUniqSerial;
+    // session ttl minus 60 seconds so cookie expires before the session
+    const cookieTTLOverride: number | undefined =
+      ttl != null ? Math.max(0, ttl - 60) : undefined;
 
     storeAdapter.setUniqIdGenerator(getUniqId);
     server.decorateRequest("session", null);
@@ -94,22 +97,41 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
       let session: null | Session = null;
       let sessionId: null | string = null;
 
-      const cookieData = request.cookies[options.cookieName];
+      const now = Date.now();
+      const expiresInSeconds: number | undefined =
+        cookieTTLOverride || options.cookieOptions?.maxAge;
+      const expiresAt: Date | null =
+        expiresInSeconds != null
+          ? new Date(now + (expiresInSeconds || 0) * 1000)
+          : null;
+
       const ipAddresses = (request?.ips || [request.ip]).filter(
         (ip) => ip !== "127.0.0.1",
       );
       const detectedIPAddress =
         ipAddresses.length >= 1 ? ipAddresses[0] : undefined;
-      const detectedUserAgent = request.headers["user-agent"] || "<not-set>";
+      const detectedUserAgent =
+        request.headers["user-agent"] != null &&
+        request.headers["user-agent"].trim() !== ""
+          ? request.headers["user-agent"]
+          : "<not-set>";
 
+      const cookieData = request.cookies[options.cookieName];
       if (cookieData == null) {
         try {
-          session = await storeAdapter.createSession(initialSession, {
-            detectedIPAddress,
-            detectedUserAgent,
-          });
+          session = await storeAdapter.createSession(
+            initialSession,
+            expiresAt,
+            {
+              detectedIPAddress,
+              detectedUserAgent,
+            },
+          );
           sessionId = session.id;
-          reply.cookie(options.cookieName, sessionId, options.cookieOptions);
+          reply.cookie(options.cookieName, sessionId, {
+            ...options.cookieOptions,
+            maxAge: expiresInSeconds,
+          });
           logTrace("new cookie session made =>", options.cookieName, sessionId);
         } catch (err) {
           logError("could not create session =>", sessionId, err);
@@ -144,10 +166,16 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         sessionId.trim() !== "__proto__"
       ) {
         sessionId = sessionId.split(".")[0];
-
         try {
           session = await storeAdapter.readSessionById(sessionId);
           logTrace("read session success =>", sessionId, session);
+          if (session?.expiresAtEpoch != null) {
+            if (now >= session.expiresAtEpoch) {
+              logTrace("session expired, removing it =>", sessionId, session);
+              await storeAdapter.deleteSessionById(sessionId);
+              logTrace("expired session deleted");
+            }
+          }
         } catch (err) {
           logError("cannot restore session =>", sessionId, err);
           session = null;
@@ -176,12 +204,11 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         };
         logTrace("restored session =>", sessionId, request.session);
       } else {
-        const nowDate = new Date(Date.now());
         request.session = {
           id: sessionId,
-          createdAtEpoch: nowDate.getTime(),
-          updatedAtEpoch: nowDate.getTime(),
-          expiresAtEpoch: null,
+          createdAtEpoch: now,
+          updatedAtEpoch: now,
+          expiresAtEpoch: expiresAt != null ? expiresAt.getTime() : null,
           data: {},
           metas: {
             detectedUserAgent: "<not-set>",

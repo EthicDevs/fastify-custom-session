@@ -77,6 +77,7 @@ export class PrismaSessionAdapter implements ISessionStoreAdapter {
 
   async createSession(
     sessionData: CustomSession,
+    expiresAt: Date | null,
     metas: {
       detectedIPAddress?: string | undefined;
       detectedUserAgent: string;
@@ -88,7 +89,7 @@ export class PrismaSessionAdapter implements ISessionStoreAdapter {
       id: sessionId,
       createdAtEpoch: nowDate.getTime(),
       updatedAtEpoch: nowDate.getTime(),
-      expiresAtEpoch: null,
+      expiresAtEpoch: expiresAt != null ? expiresAt.getTime() : null,
       data: sessionData || {},
       metas: {
         detectedIPAddress: metas.detectedIPAddress || "",
