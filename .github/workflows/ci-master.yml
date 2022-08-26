@@ -39,7 +39,10 @@ jobs:
           steps.yarn-cache.outputs.cache-hit != 'true' ||
           steps.node-modules-cache.outputs.cache-hit != 'true'
         run: "yarn"
-      - name: "🧪 Run tests"
-        run: "yarn test"
+      - name: "🧪 Run tests / verify code coverage"
+        uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          package-manager: yarn
+          skip-step: install
       - name: "🔩 Type check & build code"
         run: "yarn build"
