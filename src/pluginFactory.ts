@@ -13,10 +13,23 @@ import debug from "debug";
 // app
 import type { Session, SessionPluginOptions } from "./types";
 import { FASTIFY_VERSION_TARGET } from "./constants";
-import { generateUniqSerial, parseSessionIdFromCookieData } from "./helpers";
+import {
+  generateUniqSerial,
+  parseSessionIdFromCookieData,
+  parseSessionMetasFromRequest,
+} from "./helpers";
 
 const logTrace = debug("customSession:trace");
 const logError = debug("customSession:error");
+
+const compatNoopFunctions = {
+  async reload() {
+    return undefined;
+  },
+  async save() {
+    return undefined;
+  },
+};
 
 const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
   async (server, options) => {
@@ -26,7 +39,11 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
     const getUniqId = options?.getUniqId || generateUniqSerial;
     // session ttl minus 60 seconds so cookie expires before the session
     const cookieTTLOverride: number | undefined =
-      ttl != null ? Math.max(0, ttl - 60) : undefined;
+      ttl != null ? Math.max(0, ttl, ttl - 60) : undefined;
+
+    if (cookieTTLOverride != null) {
+      logTrace(`session time to live set to: ${cookieTTLOverride}`);
+    }
 
     storeAdapter.setUniqIdGenerator(getUniqId);
     server.decorateRequest("session", null);
@@ -67,12 +84,7 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
             },
             destroy: getDestroySession(request, reply), // will be overidden by next onRequest
             // no-op for compatibility
-            async reload() {
-              return undefined;
-            },
-            async save() {
-              return undefined;
-            },
+            ...compatNoopFunctions,
           };
           if (reply.sent === false) {
             reply.clearCookie(options.cookieName, options.cookieOptions);
@@ -93,10 +105,11 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
     }
 
     server.addHook("preHandler", async (request, reply) => {
+      const now = Date.now();
+
       let session: null | Session = null;
       let sessionId: null | string = null;
 
-      const now = Date.now();
       const expiresInSeconds: number | undefined =
         cookieTTLOverride || options.cookieOptions?.maxAge;
       const expiresAt: Date | null =
@@ -104,26 +117,16 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           ? new Date(now + (expiresInSeconds || 0) * 1000)
           : null;
 
-      const ipAddresses = (request?.ips || [request.ip]).filter(
-        (ip) => ip !== "127.0.0.1",
-      );
-      const detectedIPAddress =
-        ipAddresses.length >= 1 ? ipAddresses[0] : undefined;
-      const detectedUserAgent =
-        request.headers["user-agent"] != null &&
-        request.headers["user-agent"].trim() !== ""
-          ? request.headers["user-agent"]
-          : "<not-set>";
-
       const cookieData = request.cookies[options.cookieName];
       if (cookieData == null) {
         try {
+          const sessionMetas = parseSessionMetasFromRequest(request);
           session = await storeAdapter.createSession(
             initialSession,
             expiresAt,
             {
-              detectedIPAddress,
-              detectedUserAgent,
+              ...sessionMetas,
+              detectedUserAgent: sessionMetas.detectedUserAgent || "<not-set>",
             },
           );
           sessionId = session.id;
@@ -146,14 +149,23 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
         sessionId.trim() !== "null" &&
         sessionId.trim() !== "__proto__"
       ) {
+        // TODO(refactor): #->ensureCookieValue
         sessionId = sessionId.split(".")[0];
         try {
           session = await storeAdapter.readSessionById(sessionId);
           logTrace("read session success =>", sessionId, session);
-          if (session?.expiresAtEpoch != null) {
-            if (now >= session.expiresAtEpoch) {
+          if (session != null && session.expiresAtEpoch != null) {
+            const sessionHasExpired = now >= session.expiresAtEpoch;
+            logTrace(
+              `now: ${now} >= session.expiresAtEpoch: ${session.expiresAtEpoch} = ${sessionHasExpired}`,
+            );
+            if (sessionHasExpired) {
               logTrace("session expired, removing it =>", sessionId, session);
               await storeAdapter.deleteSessionById(sessionId);
+              reply.clearCookie(options.cookieName, options.cookieOptions);
+              request.session.expiresAtEpoch = -1; // avoid resaving it
+              session = null;
+              sessionId = getUniqId();
               logTrace("expired session deleted");
             }
           }
@@ -176,15 +188,11 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           },
           destroy: getDestroySession(request, reply),
           // no-op for compatibility
-          async reload() {
-            return undefined;
-          },
-          async save() {
-            return undefined;
-          },
+          ...compatNoopFunctions,
         };
         logTrace("restored session =>", sessionId, request.session);
       } else {
+        const sessionMetas = parseSessionMetasFromRequest(request);
         request.session = {
           id: sessionId,
           createdAtEpoch: now,
@@ -192,17 +200,12 @@ const customSessionPluginAsync: FastifyPluginAsync<SessionPluginOptions> =
           expiresAtEpoch: expiresAt != null ? expiresAt.getTime() : null,
           data: {},
           metas: {
-            detectedUserAgent: "<not-set>",
-            detectedIPAddress: "<not-set>",
+            ...sessionMetas,
+            detectedUserAgent: sessionMetas.detectedUserAgent || "<not-set>",
           },
           destroy: getDestroySession(request, reply),
           // no-op for compatibility
-          async reload() {
-            return undefined;
-          },
-          async save() {
-            return undefined;
-          },
+          ...compatNoopFunctions,
         };
         logTrace("made new session =>", sessionId, request.session);
       }

@@ -1,6 +1,12 @@
+@types/
+.volumes/
+coverage/
+test/
 **/*.test.ts
+*.log
+.DS_Store
+.env
+.env*
 tsconfig.json
 nodemon.json
-.env
-.volumes/
 yarn-error.log
