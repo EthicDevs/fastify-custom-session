@@ -6,11 +6,13 @@
 [![Average issue resolution time](https://isitmaintained.com/badge/resolution/ethicdevs/fastify-custom-session.svg)](https://isitmaintained.com/project/ethicdevs/fastify-custom-session)
 [![Number of open issues](https://isitmaintained.com/badge/open/ethicdevs/fastify-custom-session.svg)](https://isitmaintained.com/project/ethicdevs/fastify-custom-session)
 
-A Fastify (v3.x+) plugin that let you use session and decide only where to load/save from/to
+A Fastify (v3.x+) plugin that let you use session and decide only where to
+load/save from/to through the adapter pattern.
 
 ## Built-in adapters
 
 - FirebaseSessionAdapter (firebase-admin) [fully working]
+- MockSessionAdapter (in-memory, for writing tests) [fully working]
 - PrismaSessionAdapter (@prisma/client compat layer) [fully working]
 - PostgresSessionAdapter (pg, pg-pool) [wip]
 
@@ -62,6 +64,7 @@ function main() {
     storeAdapter: new MockSessionAdapter({
       /* ... AdapterOptions ... */
     }) as any,
+    ttl: 30 * 60, // expire session after 30 minutes (in seconds)
     initialSession: { // initial data in session (so you can avoid null's)
       whateverYouWant: '<unset>',
       aNullableProp: null,
